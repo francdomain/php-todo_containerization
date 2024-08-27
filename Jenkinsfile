@@ -34,7 +34,7 @@ pipeline {
                     def tagName = branchName == 'master' ? 'latest' : "${branchName}-${env.BUILD_NUMBER}"
 
                     // Use Jenkins credentials to login to Docker and push the image
-                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh """
                         docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
                         docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${tagName}
