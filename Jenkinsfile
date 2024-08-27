@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "docker.io/francdocmain"
-        DOCKER_IMAGE = "php-todo-app"
+        DOCKER_REGISTRY = "docker.io"
+        DOCKER_IMAGE = "francdocmain/php-todo-app"
     }
 
     stages {
