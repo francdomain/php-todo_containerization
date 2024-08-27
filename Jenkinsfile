@@ -17,11 +17,12 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
-                    def tagName = branchName == 'master' ? 'latest' : "${branchName}-${env.BUILD_NUMBER}"
+                    // Define tagName outside the script block for reuse
+                    env.TAG_NAME = branchName == 'master' ? 'latest' : "${branchName}-${env.BUILD_NUMBER}"
 
                     // Build Docker image
                     sh """
-                    docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${tagName} .
+                    docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME} .
                     """
                 }
             }
@@ -30,14 +31,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    def branchName = env.BRANCH_NAME
-                    def tagName = branchName == 'master' ? 'latest' : "${branchName}-${env.BUILD_NUMBER}"
-
                     // Use Jenkins credentials to login to Docker and push the image
                     withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh """
-                        docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
-                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${tagName}
+                        echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin ${DOCKER_REGISTRY}
+                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME}
                         """
                     }
                 }
@@ -48,8 +46,8 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker images to save space
-            sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${tagName}"
+            // Use env.TAG_NAME to access the tagName defined earlier
+            sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME} || true"
         }
     }
 }
