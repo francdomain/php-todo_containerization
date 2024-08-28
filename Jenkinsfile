@@ -50,12 +50,17 @@ pipeline {
             }
         }
 
+        stage('Cleanup Docker Images') {
+            steps {
+                script {
+                    // Clean up Docker images to save space
+                    sh """
+                    docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME} || true
+                    """
+                }
+            }
+        }
+
     }
 
-    post {
-        always {
-            // Use env.TAG_NAME to access the tagName defined earlier
-            sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME} || true"
-        }
-    }
 }
