@@ -26,7 +26,7 @@ pipeline {
                 script {
                     def branchName = env.BRANCH_NAME
                     // Define tagName outside the script block for reuse
-                    env.TAG_NAME = branchName == 'main' ? 'latest' : "${branchName}-${env.BUILD_NUMBER}"
+                    env.TAG_NAME = branchName == 'main' ? 'latest' : "${branchName}-0.0.${env.BUILD_NUMBER}"
 
                     // Build Docker image
                     sh """
