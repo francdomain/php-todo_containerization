@@ -35,9 +35,6 @@ RUN /usr/local/bin/composer --version
 COPY start-php-server.sh /usr/local/bin/start-php-server.sh
 RUN chmod +x /usr/local/bin/start-php-server.sh
 
-# Copy the local .env file to the container
-COPY .env /var/www/.env
-
 # Copy existing application directory contents
 COPY . /var/www
 
@@ -58,7 +55,7 @@ USER www-data
 
 # Generate application key and set it in .env
 RUN php artisan key:generate && \
-  echo "APP_KEY=$(php artisan key:generate --show)" > /var/www/.env
+  echo "APP_KEY=$(php artisan key:generate --show)" >> /var/www/.env
 
 # Expose port 8000 and start php-fpm server
 EXPOSE 8000
