@@ -4,10 +4,15 @@ pipeline {
     environment {
         DOCKER_REGISTRY = "docker.io"
         DOCKER_IMAGE = "francdocmain/php-todo-app"
+        COMPOSE_FILE = "php-todo.yml"
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build')
     }
 
     stages {
-        stage("Initial cleanup") {
+        stage('Initial cleanup') {
             steps {
                 dir("${WORKSPACE}") {
                     deleteDir()
@@ -15,34 +20,70 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
+        stage('SCM Checkout') {
             steps {
-                checkout scm
+                script {
+                    // Dynamically select the branch based on the parameter
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "${params.BRANCH_NAME}"]],
+                        userRemoteConfigs: [[url: 'https://github.com/francdomain/php-todo_containerization.git']]
+                    ])
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    def branchName = env.BRANCH_NAME
-                    // Define tagName outside the script block for reuse
+                    def branchName = params.BRANCH_NAME
                     env.TAG_NAME = branchName == 'main' ? 'latest' : "${branchName}-0.0.${env.BUILD_NUMBER}"
 
-                    // Build Docker image
+                    // Build Docker image with a dynamic tag based on branch name
                     sh """
-                    docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME} .
+                    docker-compose -f ${COMPOSE_FILE} build
                     """
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Run Docker Compose') {
             steps {
                 script {
-                    // Use Jenkins credentials to login to Docker and push the image
+                    // Start services using Docker Compose
+                    sh """
+                    docker-compose -f ${COMPOSE_FILE} up -d
+                    """
+                }
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                script {
+                    def response
+                    retry(5) {
+                        sleep(time: 20, unit: 'SECONDS')
+                        response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000", returnStdout: true).trim()
+                        echo "HTTP Status Code: ${response}"
+                        if (response == '200') {
+                            echo "Smoke test passed with status code 200"
+                        } else {
+                            error "Smoke test failed with status code ${response}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Tag and Push Docker Image') {
+            steps {
+                script {
+                    // Tag and push Docker image
                     withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh """
-                        echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin ${DOCKER_REGISTRY}
+                        echo "\$PASSWORD" | docker login -u "\$USERNAME" --password-stdin ${DOCKER_REGISTRY}
+                        docker tag php-todo_containerization_main-todoapp ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME}
                         docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.TAG_NAME}
                         """
                     }
@@ -50,7 +91,18 @@ pipeline {
             }
         }
 
-        stage('Cleanup Docker Images') {
+        stage('Stop and Remove Containers') {
+            steps {
+                script {
+                    // Stop and remove Docker containers
+                    sh """
+                    docker-compose -f ${COMPOSE_FILE} down
+                    """
+                }
+            }
+        }
+
+        stage('Cleanup') {
             steps {
                 script {
                     // Clean up Docker images to save space
@@ -60,7 +112,14 @@ pipeline {
                 }
             }
         }
-
     }
 
+    post {
+        always {
+            script {
+                // Logout from Docker
+                sh 'docker logout'
+            }
+        }
+    }
 }
