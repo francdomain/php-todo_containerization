@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  todoapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php_todo_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./www:/var/www
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      LOG_LEVEL: debug
+      APP_URL: http://localhost
+      DB_HOST: db
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_CONNECTION: mysql
+      BD_PORT: 3306
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: php_todo_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
