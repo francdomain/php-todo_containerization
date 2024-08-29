@@ -35,6 +35,9 @@ RUN /usr/local/bin/composer --version
 COPY start-php-server.sh /usr/local/bin/start-php-server.sh
 RUN chmod +x /usr/local/bin/start-php-server.sh
 
+# Copy the local .env file to the container
+COPY .env /var/www/.env
+
 # Copy existing application directory contents
 COPY . /var/www
 
