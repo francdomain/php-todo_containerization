@@ -31,6 +31,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Verify Composer installation
 RUN /usr/local/bin/composer --version
 
+# Copy the script and set correct permissions
+COPY start-php-server.sh /usr/local/bin/start-php-server.sh
+RUN chmod +x /usr/local/bin/start-php-server.sh
+
 # Copy existing application directory contents
 COPY . /var/www
 
@@ -58,4 +62,4 @@ EXPOSE 8000
 
 CMD ["php-fpm"]
 
-ENTRYPOINT [ "bash", "start-php-server.sh" ]
+ENTRYPOINT ["bash", "/usr/local/bin/start-php-server.sh"]
