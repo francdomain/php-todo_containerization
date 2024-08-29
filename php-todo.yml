@@ -16,9 +16,9 @@ services:
       LOG_LEVEL: debug
       APP_URL: http://localhost
       DB_HOST: db
-      DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: homestead
+      DB_USERNAME: francis
+      DB_PASSWORD: Admin1234
       DB_CONNECTION: mysql
       BD_PORT: 3306
     depends_on:
