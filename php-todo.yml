@@ -24,6 +24,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    user: "www-data"
 
   db:
     image: mysql:5.7
