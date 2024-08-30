@@ -41,8 +41,9 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
-      timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
 volumes:
   db_data:
