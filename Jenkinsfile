@@ -63,7 +63,7 @@ pipeline {
                 script {
                     def response
                     retry(5) {
-                        sleep(time: 20, unit: 'SECONDS')
+                        sleep(time: 30, unit: 'SECONDS')
                         response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000", returnStdout: true).trim()
                         echo "HTTP Status Code: ${response}"
                         if (response == '200') {
