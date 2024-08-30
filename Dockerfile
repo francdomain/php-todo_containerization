@@ -30,10 +30,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Verify Composer installation
 RUN /usr/local/bin/composer --version
 
-# Copy the script and set correct permissions
-COPY start-php-server.sh /usr/local/bin/start-php-server.sh
-RUN chmod +x /usr/local/bin/start-php-server.sh
-
 # Copy existing application directory contents
 COPY . /var/www
 
@@ -56,9 +52,11 @@ USER www-data
 RUN php artisan key:generate && \
   echo "APP_KEY=$(php artisan key:generate --show)" >> /var/www/.env
 
+RUN chmod +x start-php-server.sh
+
 # Expose port 8000 and start php-fpm server
 EXPOSE 8000
 
 CMD ["php-fpm"]
 
-ENTRYPOINT ["bash", "/usr/local/bin/start-php-server.sh"]
+ENTRYPOINT ["bash", "start-php-server.sh"]
