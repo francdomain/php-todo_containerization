@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: php_todo_app
     ports:
-      - "8000:8000"
+      - "5003:8000"
     networks:
       - default
     # volumes:
