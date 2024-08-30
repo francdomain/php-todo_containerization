@@ -13,7 +13,7 @@ services:
       APP_ENV: local
       APP_DEBUG: true
       LOG_LEVEL: debug
-      APP_URL: http://localhost
+      APP_URL: http://localhost:8000
       DB_HOST: db
       DB_DATABASE: homestead
       DB_USERNAME: francis
