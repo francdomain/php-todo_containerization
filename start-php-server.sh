@@ -19,4 +19,4 @@ php artisan cache:clear
 php artisan route:clear
 
 # Start Laravel server
-php artisan serve --host=0.0.0.0 --port=8000
+php artisan serve --host=0.0.0.0

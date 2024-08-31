@@ -64,7 +64,7 @@ pipeline {
                     def response
                     retry(5) {
                         sleep(time: 30, unit: 'SECONDS')  // Increase sleep duration to allow services more time to start
-                        response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000", returnStdout: true).trim()
+                        response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8089", returnStdout: true).trim()
                         echo "HTTP Status Code: ${response}"
                         if (response == '200') {
                             echo "Smoke test passed with status code 200"
