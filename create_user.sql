@@ -1,4 +1,4 @@
-CREATE DATABASE homestead;
+CREATE DATABASE IF NOT EXISTS homestead;
 
 CREATE USER 'francis' @'%' IDENTIFIED BY 'Admin1234';
 
