@@ -23,18 +23,11 @@ RUN docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-install pdo_mysql \
   && docker-php-ext-install mysqli \
   && docker-php-ext-install intl \
-  && docker-php-ext-install zip \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
-
-# Add MySQL APT repository and install the GPG key
-RUN echo "deb http://repo.mysql.com/apt/debian/ $(lsb_release -cs) mysql-8.0" > /etc/apt/sources.list.d/mysql.list \
-  && curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql | apt-key add - \
-  && apt-get update
+  && docker-php-ext-install zip
 
 # Install MySQL client and library
 RUN apt-get update && apt-get install -y \
-  default-mysql-client \
+  mariadb-client \
   libmariadb-dev
 
 # Clear cache
