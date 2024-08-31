@@ -24,7 +24,7 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - - ./create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
+      - ./create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
