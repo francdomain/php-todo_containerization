@@ -12,14 +12,9 @@ RUN apt-get update && apt-get install -y \
   git \
   unzip \
   libzip-dev \
-  libmysqlclient-dev \
   lsb-release \
   gnupg \
   wget
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-RUN rm -rf /usr/src/php/ext/*/.libs
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
@@ -36,8 +31,14 @@ RUN echo "deb http://repo.mysql.com/apt/debian/ $(lsb_release -cs) mysql-8.0" > 
   && apt-key add RPM-GPG-KEY-mysql \
   && apt-get update
 
-# Install MySQL client
-RUN apt-get install -y default-mysql-client
+# Install MySQL client and library
+RUN apt-get update && apt-get install -y \
+  default-mysql-client \
+  libmariadb-dev
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN rm -rf /usr/src/php/ext/*/.libs
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
