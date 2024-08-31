@@ -4,7 +4,7 @@ services:
     build: .
     container_name: php_todo_app
     ports:
-      - "8000:8000"
+      - "8089:8000"
     volumes:
       - todo_app:/var/www
     depends_on:

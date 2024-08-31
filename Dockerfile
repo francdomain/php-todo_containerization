@@ -56,7 +56,7 @@ RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 RUN /usr/local/bin/composer install --no-interaction --optimize-autoloader
 
 # Set the correct permissions for Laravel folders
-RUN chown -R www-data:www-data /var/www/bootstrap/cache /var/www/storage
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Change current user to www
 USER www-data
