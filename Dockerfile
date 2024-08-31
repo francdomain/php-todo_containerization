@@ -1,17 +1,21 @@
 # Use the official PHP image as the base image
 FROM php:7.4-fpm
 
-WORKDIR /var/www
-
-# Install system dependencies
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-  git \
-  curl \
   libpng-dev \
-  libjpeg62-turbo-dev \
+  libjpeg-dev \
   libfreetype6-dev \
-  zip \
-  unzip
+  libjpeg62-turbo-dev \
+  libicu-dev \
+  g++ \
+  git \
+  unzip \
+  libzip-dev \
+  libmysqlclient-dev \
+  lsb-release \
+  gnupg \
+  wget
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -21,7 +25,19 @@ RUN rm -rf /usr/src/php/ext/*/.libs
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-install pdo_mysql \
-  && docker-php-ext-install mysqli
+  && docker-php-ext-install mysqli \
+  && docker-php-ext-install intl \
+  && docker-php-ext-install zip \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN echo "deb http://repo.mysql.com/apt/debian/ $(lsb_release -cs) mysql-8.0" > /etc/apt/sources.list.d/mysql.list \
+  && curl -O https://repo.mysql.com/RPM-GPG-KEY-mysql \
+  && apt-key add RPM-GPG-KEY-mysql \
+  && apt-get update
+
+# Install MySQL client
+RUN apt-get install -y default-mysql-client
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
@@ -29,6 +45,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Verify Composer installation
 RUN /usr/local/bin/composer --version
+
+WORKDIR /var/www
 
 # Copy existing application directory contents
 COPY . /var/www
