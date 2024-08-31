@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
   libzip-dev \
   lsb-release \
   gnupg \
+  curl \
   wget
 
 # Install PHP extensions
@@ -26,9 +27,9 @@ RUN docker-php-ext-install -j$(nproc) gd \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+# Add MySQL APT repository and install the GPG key
 RUN echo "deb http://repo.mysql.com/apt/debian/ $(lsb_release -cs) mysql-8.0" > /etc/apt/sources.list.d/mysql.list \
-  && curl -O https://repo.mysql.com/RPM-GPG-KEY-mysql \
-  && apt-key add RPM-GPG-KEY-mysql \
+  && curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql | apt-key add - \
   && apt-get update
 
 # Install MySQL client and library
